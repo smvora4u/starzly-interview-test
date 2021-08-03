@@ -1,0 +1,13 @@
+.content-container {
+    margin-top: 10px;
+}
+
+.action-container button:not(:first-child) {
+  margin-left: 5px;
+}
+
+.follow-btn {
+  border: none !important;
+  background: #f7f7f7 !important;
+  color: #ff4d4f !important;
+}
