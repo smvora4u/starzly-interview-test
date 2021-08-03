@@ -1,50 +1,55 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Col, Input, Row, List, Avatar } from "antd";
 import { SearchOutlined, CloseOutlined } from "@ant-design/icons";
 import "./SearchedTalent.css";
 
 const SearchedTalent = (props) => {
-  const [value, setValue] = useState("");
+  const [enteredTalent, setEnteredTalent] = useState("");
   const [data, setData] = useState([]);
-  const [fetchError, setFetchError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [dataReceived, setDataReceived] = useState(false);
 
+  useEffect(() => {
+    const identifier = setTimeout(() => {
+      const strLength = enteredTalent.length;
+      if (strLength > 2) {
+        const url = "https://starzly.io/api/talents/?name=" + enteredTalent;
+        fetch(url, {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        })
+          .then((res) => res.json())
+          .then(
+            (result) => {
+              console.log(result);
+              setData(result.data);
+              setDataReceived(true);
+            },
+            (error) => {
+              setData([]);
+              setErrorMsg("Failed to fetch!");
+            }
+          );
+      } else {
+        setDataReceived(false);
+        return;
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(identifier);
+    };
+  }, [enteredTalent]);
+
   const reset = () => {
-    setValue("");
+    setEnteredTalent("");
     setDataReceived(false);
-    setFetchError(false);
   };
 
   const searchTalentHandler = (e) => {
-    setValue(e.target.value);
-    const strLength = e.target.value.trim().length;
-    if (strLength > 2) {
-      setFetchError(false);
-      const url = "https://starzly.io/api/talents/?name=" + e.target.value;
-      fetch(url, {
-        headers : { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-         }
-      })
-        .then((res) => res.json())
-        .then(
-          (result) => {
-            console.log(result);
-            setData(result.data)
-            setDataReceived(true);
-          },
-          (error) => {
-            setFetchError(true);
-            setData([]);
-            setErrorMsg("Failed to fetch!");  
-          }
-        );
-    } else {
-      setDataReceived(false);
-      return;
-    }
+    setEnteredTalent(e.target.value);
   };
 
   return (
@@ -55,9 +60,9 @@ const SearchedTalent = (props) => {
             <Input
               prefix={<SearchOutlined />}
               onChange={searchTalentHandler}
-              value={value}
+              value={enteredTalent}
             />
-            {value && (
+            {enteredTalent && (
               <Button
                 className="reset-search"
                 onClick={reset}
@@ -78,6 +83,9 @@ const SearchedTalent = (props) => {
         </Row>
         <Row justify="center" className="searched-talent-result">
           <Col span={24} className="searched-talent-list-container">
+            {errorMsg.trim().length !== 0 ? (
+              <p className="err-msg">errorMsg</p>
+            ) : (
               <List
                 className={`talent-list ${dataReceived ? "show" : ""}`}
                 itemLayout="horizontal"
@@ -85,17 +93,18 @@ const SearchedTalent = (props) => {
                 renderItem={(item) => (
                   <List.Item>
                     <List.Item.Meta
-                      avatar={
-                        <Avatar src={item.user.avatar_url} />
-                      }
+                      avatar={<Avatar src={item.user.avatar_url} />}
                       title={item.name_en}
-                      description={item.tags.map(talent => {
-                        return talent.name_en;
-                      }).join(", ")}
+                      description={item.tags
+                        .map((talent) => {
+                          return talent.name_en;
+                        })
+                        .join(", ")}
                     />
                   </List.Item>
                 )}
               />
+            )}
           </Col>
         </Row>
       </div>

@@ -63,7 +63,7 @@
 
 .talent-list {
     height: 0px;
-    transition: height 2s;
+    transition: height .6s;
     overflow-y: scroll;
     /* background-color: rgb(226, 218, 218);s */
 }
