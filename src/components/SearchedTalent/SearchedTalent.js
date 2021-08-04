@@ -9,6 +9,7 @@ const SearchedTalent = (props) => {
   const [errorMsg, setErrorMsg] = useState("");
   const [dataReceived, setDataReceived] = useState(false);
 
+  // debounce function to prevent multiple request on every keypress
   useEffect(() => {
     const identifier = setTimeout(() => {
       const strLength = enteredTalent.length;
@@ -43,11 +44,13 @@ const SearchedTalent = (props) => {
     };
   }, [enteredTalent]);
 
+  // reset value of search input
   const reset = () => {
     setEnteredTalent("");
     setDataReceived(false);
   };
 
+  // sets the value of input
   const searchTalentHandler = (e) => {
     setEnteredTalent(e.target.value);
   };
@@ -84,7 +87,7 @@ const SearchedTalent = (props) => {
         <Row justify="center" className="searched-talent-result">
           <Col span={24} className="searched-talent-list-container">
             {errorMsg.trim().length !== 0 ? (
-              <p className="err-msg">errorMsg</p>
+              <p className="err-msg">{errorMsg}</p>
             ) : (
               <List
                 className={`talent-list ${dataReceived ? "show" : ""}`}
